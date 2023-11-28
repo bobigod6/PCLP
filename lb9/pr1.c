@@ -1,22 +1,42 @@
 #include <stdio.h>
 
-unsigned int inverseazaOctetiiIntregului(unsigned int num) {
-    unsigned int byte1 = (num & 0xFF000000) >> 24;
-    unsigned int byte2 = (num & 0x00FF0000) >> 8;
-    unsigned int byte3 = (num & 0x0000FF00) << 8;
-    unsigned int byte4 = (num & 0x000000FF) << 24;
+// Definim o uniune care permite accesul individual la octetii unui intreg de 4 bytes
+union IntUnion {
+    int num;
+    unsigned char bytes[4];
+};
 
-    return byte1 | byte2 | byte3 | byte4;
+// Functie pentru criptarea si decriptarea unui intreg
+void cripteazaDecripteazaIntreg(union IntUnion *val) {
+    // Inversam octetii intre ei: primul cu al patrulea, respectiv al doilea cu al treilea
+    unsigned char temp = val->bytes[0];
+    val->bytes[0] = val->bytes[3];
+    val->bytes[3] = temp;
+
+    temp = val->bytes[1];
+    val->bytes[1] = val->bytes[2];
+    val->bytes[2] = temp;
 }
 
 int main() {
-    unsigned int val = 123456789;
+    // Initializam o variabila de tip IntUnion cu un intreg dat
+    union IntUnion val;
+    val.num = 123456789;  // Puteti schimba valoarea dupa necesitate
 
-    printf("Valoarea initiala: %u\n", val);
+    // Afisam valoarea initiala
+    printf("Valoarea initiala: %d\n", val.num);
 
-    val = inverseazaOctetiiIntregului(val);
+    // Apelam functia pentru criptare
+    cripteazaDecripteazaIntreg(&val);
 
-    printf("Valoarea dupa inversare octeti: %u\n", val);
+    // Afisam valoarea criptata
+    printf("Valoarea criptata: %d\n", val.num);
+
+    // Apelam functia pentru decriptare
+    cripteazaDecripteazaIntreg(&val);
+
+    // Afisam valoarea dupa decriptare
+    printf("Valoarea dupa decriptare: %d\n", val.num);
 
     return 0;
 }
